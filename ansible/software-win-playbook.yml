@@ -1,0 +1,121 @@
+---
+- hosts:
+    workstations
+  vars:
+    ansible_user: sysop
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Install 7-Zip
+      win_chocolatey:
+        name: 7zip.install
+        state: present
+    - name: Install Notepad++
+      win_chocolatey:
+        name: notepadplusplus.install
+        state: present
+    - name: Install Bitwarden
+      win_chocolatey:
+        name: bitwarden
+        state: present
+    - name: Install Opera
+      win_chocolatey:
+        name: opera
+        state: present
+    - name: Install Chrome
+      win_chocolatey:
+        name: googlechrome
+        state: present
+    - name: Install Firefox
+      win_chocolatey:
+        name: firefox
+        state: present
+    - name: Install Thunderbird
+      win_chocolatey:
+        name: thunderbird
+        state: present
+    - name: Install Python 3.9.9
+      win_chocolatey:
+        name: python3
+        version: 3.9.9
+        state: present
+    - name: Install Windows Terminal
+      win_chocolatey:
+        name: microsoft-windows-terminal
+        state: present
+    - name: Install Git For Windows
+      win_chocolatey:
+        name: git
+        state: present
+    - name: Install Visual Studio Code
+      win_chocolatey:
+        name: vscode
+        state: present
+    - name: Install Draw.io
+      win_chocolatey:
+        name: drawio
+        state: present
+    - name: Install SQL Server Management Studio
+      win_chocolatey:
+        name: sql-server-management-studio
+        state: present
+    - name: Install Adobe Reader DC
+      win_chocolatey:
+        name: adobereader
+        state: present
+    - name: Install WinDirStat
+      win_chocolatey:
+        name: windirstat
+        state: present
+    - name: Install WinSCP
+      win_chocolatey:
+        name: winscp
+        state: present
+    - name: Install Putty
+      win_chocolatey:
+        name: putty
+        state: present
+    - name: Install WinMerge
+      win_chocolatey:
+        name: winmerge
+        state: present
+    - name: Install Gimp
+      win_chocolatey:
+        name: gimp
+        state: present
+    - name: Install TeraCopy
+      win_chocolatey:
+        name: teracopy
+        state: present
+    - name: Install Libre Office
+      win_chocolatey:
+        name: libreoffice-fresh
+        state: present
+    - name: Install Inkscape
+      win_chocolatey:
+        name: inkscape
+        state: present
+    - name: Install Visual Studio 2022 Build Tools
+      win_chocolatey:
+        name: visualstudio2022buildtools
+        state: present
+    - name: Install Node.Js
+      win_chocolatey:
+        name: nodejs
+        state: present
+    - name: Install JQ
+      win_chocolatey:
+        name: jq
+        state: present
+    - name: Install Postman
+      win_chocolatey:
+        name: postman
+        state: present
+    - name: Install Fiddler
+      win_chocolatey:
+        name: fiddler
+        state: present
+    - name: Install NimbleText
+      win_chocolatey:
+        name: nimbletext
+        state: present

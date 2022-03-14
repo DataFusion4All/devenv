@@ -1,0 +1,12 @@
+---
+- hosts:
+    team-002
+  vars:
+    ansible_user: sysop
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Install PgAdmin
+      win_chocolatey:
+        name: pgadmin4
+        state: present
