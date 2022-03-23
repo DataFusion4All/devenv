@@ -1,23 +1,27 @@
 all:
   hosts:
-    children:
-      gitservers:
-        hosts:
-          gitlab:
-            ansible_host: 172.25.11.5
-      databases:
-        hosts:
-          pgsql-01:
-            ansible_host: 172.25.11.13
-      workstations:
-        hosts:
-          team-001:
-            ansible_host: 172.25.11.12
-          team-002:
-            ansible_host: 172.25.11.9
-          team-003:
-            ansible_host: 172.25.11.7
-          team-004:
-            ansible_host: 172.25.11.10
-          team-005:
-            ansible_host: 172.25.11.11
+  children:
+    gitservers:
+      hosts:
+        gitlab:
+          ansible_host: 172.25.11.5
+    appservers:
+      hosts:
+        pent-ba:
+          ansible_host: 172.25.11.14
+    databases:
+      hosts:
+        pgsql-01:
+          ansible_host: 172.25.11.13
+    workstations:
+      hosts:
+        team-001:
+          ansible_host: 172.25.11.12
+        team-002:
+          ansible_host: 172.25.11.9
+        team-003:
+          ansible_host: 172.25.11.7
+        team-004:
+          ansible_host: 172.25.11.10
+        team-005:
+          ansible_host: 172.25.11.11

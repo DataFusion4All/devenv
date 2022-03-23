@@ -1,0 +1,149 @@
+---
+- name: Setup Pentaho Business Analysis Server
+  hosts: pent-ba
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Java
+      apt:
+        name: openjdk-11-jre-headless
+        state: present
+    - name: Set JAVA_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'JAVA_HOME="/usr/lib/jvm/java-1.11.0-openjdk-amd64"'
+        search_string: 'JAVA_HOME'
+        state: present
+    - name: Install Tomcat 9
+      apt:
+        name: tomcat9
+        state: present
+    - name: Install Tomcat 9 Admin UI
+      apt:
+        name: tomcat9-admin
+        state: present
+    - name: Install Tomcat 9 Common Files
+      apt:
+        name: tomcat9-common
+        state: present
+    - name: Install Tomcat 9 Documentation
+      apt:
+        name: tomcat9-docs
+        state: present
+    - name: Install Tomcat 9 Examples
+      apt:
+        name: tomcat9-examples
+        state: present
+    - name: Install Tomcat 9 User Tools
+      apt:
+        name: tomcat9-user
+        state: present
+    - name: Set CATALINA_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_HOME="/usr/share/tomcat9"'
+        search_string: 'CATALINA_HOME'
+        state: present
+    - name: Set CATALINA_BASE
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_BASE="/var/lib/tomcat9"'
+        search_string: 'CATALINA_BASE'
+        state: present
+    - name: Set CATALINA_TMPDIR
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_TMPDIR="/tmp"'
+        search_string: 'CATALINA_TMPDIR'
+        state: present
+    - name: Set JAVA_OPTS
+      lineinfile:
+        path: /etc/environment
+        line: 'JAVA_OPTS="-Djava.awt.headless=true"'
+        search_string: 'JAVA_OPTS'
+        state: present
+    - name: Install Python3 Pip
+      apt:
+        name: python3-pip
+        state: present
+    - name: Install lxml Python Module
+      pip:
+        name: lxml
+        state: present
+    - name: Add Tomcat Roles and User
+      community.general.xml:
+        path: /etc/tomcat9/tomcat-users.xml
+        xpath: /tomcat:tomcat-users
+        pretty_print: yes
+        namespaces:
+          tomcat: "http://tomcat.apache.org/xml"
+        set_children:
+          - role:
+              rolename: admin-gui
+          - role:
+              rolename: manager-gui
+          - user:
+              username: sysop
+              password: 2ManageWebApps
+              roles: 'admin-gui,manager-gui'
+    - name: Install Maven
+      apt:
+        name: maven
+        state: present
+    - name: Set MAVEN_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'MAVEN_HOME="/usr/share/maven"'
+        search_string: 'MAVEN_HOME'
+        state: present
+    - name: Install CA Certificates
+      apt:
+        name: ca-certificates
+        state: present
+    - name: Add PostgreSQL Apt Repository Key
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
+    - name: Add PostgreSQL Apt Repository
+      apt_repository:
+        repo: deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
+        filename: pgdg
+        update_cache: yes
+    - name: Install PostgreSQL
+      apt:
+        name: postgresql
+        state: present
+    - name: Install PostgreSQL Contributions
+      apt:
+        name: postgresql-contrib
+        state: present
+    - name: Clone Pentaho Platform Git Repository
+      git:
+      become:
+      become_user: sysop
+      args:
+        repo: https://github.com/pentaho/pentaho-platform.git
+        dest: /home/sysop/repos/pentaho-platform
+    - name: Create Maven .m2 Folder
+      file:
+        path: /home/sysop/.m2
+        owner: sysop
+        group: sysop
+        mode: 0775
+        state: directory
+        recurse: yes
+    - name: Download Pentaho Maven Settings.Xml
+      get_url:
+        url: https://raw.githubusercontent.com/pentaho/maven-parent-poms/master/maven-support-files/settings.xml
+        dest: /home/sysop/.m2/settings.xml
+        owner: sysop
+        group: sysop
+        mode: 0775
+    - name: Build Pentaho Platform Community Edition
+      command:
+      become: yes
+      become_user: sysop
+      args:
+        chdir: /home/sysop/repos/pentaho-platform
+        cmd: mvn clean install -Dmaven.test.skip=true
+        creates: /home/sysop/repos/pentaho-platform/assemblies/pentaho-server-manual/target/pentaho-server

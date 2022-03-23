@@ -1,0 +1,20 @@
+---
+- hosts:
+    team-002
+  vars:
+    ansible_user: sysop
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Install OpenJDK 17.0.2
+      win_chocolatey:
+        name: oraclejdk
+        state: absent
+    - name: Install Maven 3.8.5
+      win_chocolatey:
+        name: maven
+        state: absent
+    - name: IntelliJ IDEA Community
+      win_chocolatey:
+        name: intellijidea-community
+        state: absent

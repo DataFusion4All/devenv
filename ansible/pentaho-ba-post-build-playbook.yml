@@ -1,0 +1,99 @@
+---
+- name: Setup Pentaho Business Analysis Server -- Post Build
+  hosts: pent-ba
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Extract Built Community Edition Server
+      unarchive:
+        src: /home/sysop/repos/pentaho-platform/assemblies/pentaho-server-manual/target/pentaho-server-manual-ce-9.3.0.0-SNAPSHOT.zip
+        dest: /home/pentaho/server/pentaho-server
+        remote_src: yes
+        owner: pentaho
+        group: pentaho
+        mode: 0775
+    - name: Extract Database Scripts
+      unarchive:
+        src: /home/pentaho/server/pentaho-server/pentaho-data.zip
+        dest: /home/pentaho/server/pentaho-server
+        remote_src: yes
+        owner: pentaho
+        group: pentaho
+        mode: 0775
+    - name: Extract Solution Scripts
+      unarchive:
+        src: /home/pentaho/server/pentaho-server/pentaho-solutions.zip
+        dest: /home/pentaho/server/pentaho-server
+        remote_src: yes
+        owner: pentaho
+        group: pentaho
+        mode: 0775
+    - name: Copy Pentaho WebApp into Tomcat
+      copy:
+        src: /home/pentaho/server/pentaho-server/pentaho.war
+        dest: /var/lib/tomcat9/webapps
+        remote_src: yes
+        owner: tomcat
+        group: tomcat
+        mode: 0750
+    - name: Copy Pentaho-Style WebApp into Tomcat
+      copy:
+        src: /home/pentaho/server/pentaho-server/pentaho-style.war
+        dest: /var/lib/tomcat9/webapps
+        remote_src: yes
+        owner: tomcat
+        group: tomcat
+        mode: 0750
+    - name: Set PENTAHO_JAVA_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'PENTAHO_JAVA_HOME="/usr/lib/jvm/java-1.11.0-openjdk-amd64"'
+        regex: '^PENTAHO_JAVA_HOME='
+        state: present
+    - name: Set CATALINA_OPTS
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_OPTS="-Djava.awt.headless=true -Xms4096m -Xmx6144m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"'
+        regex: '^CATALINA_OPTS='
+        state: present
+    - name: Change Repository Database User Password
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_repository_postgresql.sql
+        line: "CREATE ROLE hibuser WITH ENCRYPTED PASSWORD '2ManagePentahoRepo';"
+        search_string: 'CREATE USER hibuser'
+        state: present
+    - name: Change Quartz Jobs Database User Password
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "CREATE ROLE pentaho_user WITH ENCRYPTED PASSWORD '2ManageETLJobs';"
+        search_string: 'CREATE USER pentaho_user'
+        state: present
+    - name: Change JackRabbit Database User Password
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_jcr_postgresql.sql
+        line: "CREATE ROLE jcr_user WITH ENCRYPTED PASSWORD '2ManageJackRabbit';"
+        search_string: 'CREATE USER jcr_user'
+        state: present
+    - name: Install ACL Package
+      apt:
+        name: acl
+        state: present
+    - name: Create Repository Database
+      command:
+      become: yes
+      become_user: postgres
+      args:
+        cmd: psql -d postgres -a -f /home/pentaho/server/pentaho-server/data/postgresql/create_repository_postgresql.sql
+    - name: Create Quartz Jobs Database
+      command:
+      become: yes
+      become_user: postgres
+      args:
+        cmd: psql -d postgres -a -f /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+    - name: Create JackRabbit Database
+      command:
+      become: yes
+      become_user: postgres
+      args:
+        cmd: psql -d postgres -a -f /home/pentaho/server/pentaho-server/data/postgresql/create_jcr_postgresql.sql
+
