@@ -1,0 +1,55 @@
+---
+- name: Setup CKAN Server
+  hosts: ckan-01
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Python3 pip
+      apt:
+        name: python3-pip
+        state: present
+        update_cache: yes
+    - name: Install Python3 dev
+      apt:
+        name: python3-dev
+        state: present
+    - name: Install Python3 venv
+      apt:
+        name: python3-venv
+        state: present
+    - name: Install libpq-dev
+      apt:
+        name: libpq-dev
+        state: present
+    - name: Install git-core
+      apt:
+        name: git-core
+        state: present
+    - name: Install OpenJDK 8
+      apt:
+        name: openjdk-8-jdk
+        state: present
+    - name: Install solr-jetty
+      apt:
+        name: solr-jetty
+        state: present
+    - name: Install redis-server
+      apt:
+        name: redis-server
+        state: present
+    - name: Setup CKAN User
+      user:
+        name: ckan
+        comment: CKAN,,,,ckan
+        state: present
+        create_home: yes
+        home: /home/ckan
+        shell: /usr/bin/bash
+        skeleton: /etc/skel
+        system: no
+        generate_ssh_key: yes
+    - name: Add Ansible Public Key to CKAN User Authorized Keys
+      ansible.posix.authorized_key:
+        user: ckan
+        state: present
+        key: "{{ lookup('file', '/home/sysop/.ssh/id_rsa.pub') }}"

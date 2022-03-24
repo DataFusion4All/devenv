@@ -1,0 +1,31 @@
+---
+- name: General PostgreSQL Server Installation
+  hosts: ckan-01
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Run A Distro Upgrade
+      apt:
+        upgrade: dist
+        update_cache: yes
+    - name: Install CA Certificates
+      apt:
+        name: ca-certificates
+        state: present
+    - name: Add PostgreSQL Apt Repository Key
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
+    - name: Add PostgreSQL Apt Repository
+      apt_repository:
+        repo: deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
+        filename: pgdg
+        update_cache: yes
+    - name: Install PostgreSQL
+      apt:
+        name: postgresql
+        state: present
+    - name: Install PostgreSQL Contributions
+      apt:
+        name: postgresql-contrib
+        state: present

@@ -1,0 +1,17 @@
+---
+- name: Setup Pentaho Business Analysis Server - Pre Build
+  hosts: pent-ba
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Setup Pentaho User
+      user:
+        name: pentaho
+        comment: Pentaho,,,,pentaho
+        state: present
+        create_home: yes
+        home: /home/pentaho
+        shell: /usr/bin/bash
+        skeleton: /etc/skel
+        system: no
+        generate_ssh_key: yes

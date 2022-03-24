@@ -1,0 +1,238 @@
+---
+- name: Setup Pentaho Business Analysis Server -- Post Build
+  hosts: pent-ba
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Extract Built Community Edition Server
+      unarchive:
+        src: /home/sysop/repos/pentaho-platform/assemblies/pentaho-server-manual/target/pentaho-server-manual-ce-9.3.0.0-SNAPSHOT.zip
+        dest: /home/pentaho/server/pentaho-server
+        remote_src: yes
+        owner: pentaho
+        group: pentaho
+        mode: 0775
+    - name: Extract Database Scripts
+      unarchive:
+        src: /home/pentaho/server/pentaho-server/pentaho-data.zip
+        dest: /home/pentaho/server/pentaho-server
+        remote_src: yes
+        owner: pentaho
+        group: pentaho
+        mode: 0775
+    - name: Extract Solution Scripts
+      unarchive:
+        src: /home/pentaho/server/pentaho-server/pentaho-solutions.zip
+        dest: /home/pentaho/server/pentaho-server
+        remote_src: yes
+        owner: pentaho
+        group: pentaho
+        mode: 0775
+    - name: Copy Pentaho WebApp into Tomcat
+      copy:
+        src: /home/pentaho/server/pentaho-server/pentaho.war
+        dest: /var/lib/tomcat9/webapps
+        remote_src: yes
+        owner: tomcat
+        group: tomcat
+        mode: 0750
+    - name: Copy Pentaho-Style WebApp into Tomcat
+      copy:
+        src: /home/pentaho/server/pentaho-server/pentaho-style.war
+        dest: /var/lib/tomcat9/webapps
+        remote_src: yes
+        owner: tomcat
+        group: tomcat
+        mode: 0750
+    - name: Set PENTAHO_JAVA_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'PENTAHO_JAVA_HOME="/usr/lib/jvm/java-1.11.0-openjdk-amd64"'
+        regex: '^PENTAHO_JAVA_HOME='
+        state: present
+    - name: Set CATALINA_OPTS
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_OPTS="-Djava.awt.headless=true -Xms4096m -Xmx6144m -XX:MaxPermSize=256m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"'
+        regex: '^CATALINA_OPTS='
+        state: present
+    - name: Change Repository Database User Password
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_repository_postgresql.sql
+        line: "CREATE ROLE hibuser WITH ENCRYPTED PASSWORD '2ManagePentahoRepo';"
+        regex: '^CREATE USER hibuser'
+        state: present
+    - name: Create Quartz Database Script
+      file:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_db_postgresql.sql
+        state: touch
+        owner: pentaho
+        group: pentaho
+        mode: 0775
+    - name: Edit Quartz Database Script Line DROP DB
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_db_postgresql.sql
+        line: "DROP DATABASE IF EXISTS quartz;"
+        regex: "^DROP DATABASE IF EXISTS quartz;"
+        state: present
+    - name: Edit Quartz Database Script Line DROP ROLE
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_db_postgresql.sql
+        line: "DROP ROLE IF EXISTS pentaho;"
+        regex: "^DROP ROLE IF EXISTS pentaho;"
+        state: present
+    - name: Edit Quartz Database Script Line CREATE ROLE
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_db_postgresql.sql
+        line: "CREATE ROLE pentaho WITH LOGIN ENCRYPTED PASSWORD '2ManageETLJobs';"
+        regex: "^CREATE ROLE pentaho WITH LOGIN ENCRYPTED PASSWORD '2ManageETLJobs';"
+        state: present
+    - name: Edit Quartz Database Script Line CREATE DB
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_db_postgresql.sql
+        line: "CREATE DATABASE quartz WITH OWNER = pentaho ENCODING = 'UTF8' TABLESPACE = pg_default;"
+        regex: "^CREATE DATABASE quartz WITH OWNER = pentaho ENCODING = 'UTF8' TABLESPACE = pg_default;"
+        state: present
+    - name: Edit Quartz Database Script Line GRANT RIGHTS TO ROLE
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_db_postgresql.sql
+        line: "GRANT ALL ON DATABASE quartz TO pentaho;"
+        regex: "^GRANT ALL ON DATABASE quartz TO pentaho;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script DROP DB
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        regex: "^drop database if exists quartz;"
+        state: absent
+    - name: Edit Pentaho Quartz Database Script DROP ROLE
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        regex: "^drop user if exists pentaho_user;"
+        state: absent
+    - name: Edit Pentaho Quartz Database Script CREATE ROLE
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        regex: "^CREATE USER pentaho_user PASSWORD 'password';"
+        state: absent
+    - name: Edit Pentaho Quartz Database Script CREATE DATABASE
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        regex: "^CREATE DATABASE quartz  WITH OWNER = pentaho_user  ENCODING = 'UTF8' TABLESPACE = pg_default;"
+        state: absent
+    - name: Edit Pentaho Quartz Database Script GRANT RIGHTS TO ROLE
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        regex: "^GRANT ALL ON DATABASE quartz to pentaho_user;"
+        state: absent
+    - name: Edit Pentaho Quartz Database Script CONNECT AS PENTAHO USER
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "\\connect quartz pentaho"
+        regex: "connect quartz pentaho_user$"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_job_listeners
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_job_listeners OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_job_listeners OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_trigger_listeners
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_trigger_listeners OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_trigger_listeners OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_fired_triggers
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_fired_triggers OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_fired_triggers OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_paused_trigger_grps
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_paused_trigger_grps OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_paused_trigger_grps OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_scheduler_state
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_scheduler_state OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_scheduler_state OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_locks
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_locks OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_locks OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_simple_triggers
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_simple_triggers OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_simple_triggers OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_cron_triggers
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_cron_triggers OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_cron_triggers OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_blob_triggers
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_blob_triggers OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_blob_triggers OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_triggers
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_triggers OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_triggers OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_job_details
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_job_details OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_job_details OWNER TO pentaho_user;"
+        state: present
+    - name: Edit Pentaho Quartz Database Script ALTER TABLE qrtz5_calendars
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+        line: "ALTER TABLE qrtz5_calendars OWNER TO pentaho;"
+        regex: "^ALTER TABLE qrtz5_calendars OWNER TO pentaho_user;"
+        state: present
+    - name: Change JackRabbit Database User Password
+      lineinfile:
+        path: /home/pentaho/server/pentaho-server/data/postgresql/create_jcr_postgresql.sql
+        line: "CREATE ROLE jcr_user WITH ENCRYPTED PASSWORD '2ManageJackRabbit';"
+        regex: '^CREATE USER jcr_user'
+        state: present
+    - name: Install ACL Package
+      apt:
+        name: acl
+        state: present
+    - name: Create Repository Database
+      command:
+      become: yes
+      become_user: postgres
+      args:
+        cmd: psql -d postgres -a -f /home/pentaho/server/pentaho-server/data/postgresql/create_repository_postgresql.sql
+    - name: Create Quartz Jobs Database
+      command:
+      become: yes
+      become_user: postgres
+      args:
+        cmd: psql -d postgres -a -f /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_db_postgresql.sql
+    - name: Create Quartz Jobs Database Tables
+      command:
+      become: yes
+      become_user: pentaho
+      args:
+        cmd: psql -d quartz -a -f /home/pentaho/server/pentaho-server/data/postgresql/create_quartz_postgresql.sql
+    - name: Create JackRabbit Database
+      command:
+      become: yes
+      become_user: postgres
+      args:
+        cmd: psql -d postgres -a -f /home/pentaho/server/pentaho-server/data/postgresql/create_jcr_postgresql.sql
