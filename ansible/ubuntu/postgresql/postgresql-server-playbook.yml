@@ -29,3 +29,21 @@
       apt:
         name: postgresql-contrib
         state: present
+    - name: Install acl package
+      apt:
+        name: acl
+        state: present
+    - name: Clone Dotfiles for postgres user
+      git:
+      become: yes
+      become_user: postgres
+      args:
+        repo: 'https://github.com/Waiver-Wire-Addict/dotfiles.git'
+        dest: ~/dotfiles
+    - name: Install postgres Dotfiles
+      command:
+      become: yes
+      become_user: postgres
+      args:
+        cmd: ./install.sh
+        chdir: ~/dotfiles

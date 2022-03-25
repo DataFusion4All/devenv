@@ -1,0 +1,24 @@
+---
+- name: Install Dot Files
+  hosts: ckan-01
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Run A Distro Upgrade
+      apt:
+        upgrade: dist
+        update_cache: yes
+    - name: Clone Dotfiles for Root
+      git:
+      become: yes
+      become_user: root
+      args:
+        repo: 'https://github.com/Waiver-Wire-Addict/dotfiles.git'
+        dest: /root/dotfiles
+    - name: Install Root Dotfiles
+      command:
+      become: yes
+      become_user: root
+      args:
+        cmd: ./install.sh
+        chdir: /root/dotfiles

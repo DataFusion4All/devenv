@@ -1,0 +1,16 @@
+---
+- name: Setup Maven Java Build Tool
+  hosts: pent-ba
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Maven
+      apt:
+        name: maven
+        state: present
+    - name: Set MAVEN_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'MAVEN_HOME="/usr/share/maven"'
+        regex: '^MAVEN_HOME='
+        state: present

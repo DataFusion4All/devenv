@@ -1,0 +1,78 @@
+---
+- name: Setup Tomcat 9 Java Web Server
+  hosts: pent-ba
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Tomcat 9
+      apt:
+        name: tomcat9
+        state: present
+    - name: Install Tomcat 9 Admin UI
+      apt:
+        name: tomcat9-admin
+        state: present
+    - name: Install Tomcat 9 Common Files
+      apt:
+        name: tomcat9-common
+        state: present
+    - name: Install Tomcat 9 Documentation
+      apt:
+        name: tomcat9-docs
+        state: present
+    - name: Install Tomcat 9 Examples
+      apt:
+        name: tomcat9-examples
+        state: present
+    - name: Install Tomcat 9 User Tools
+      apt:
+        name: tomcat9-user
+        state: present
+    - name: Set CATALINA_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_HOME="/usr/share/tomcat9"'
+        regex: '^CATALINA_HOME='
+        state: present
+    - name: Set CATALINA_BASE
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_BASE="/var/lib/tomcat9"'
+        regex: '^CATALINA_BASE='
+        state: present
+    - name: Set CATALINA_TMPDIR
+      lineinfile:
+        path: /etc/environment
+        line: 'CATALINA_TMPDIR="/tmp"'
+        regex: '^CATALINA_TMPDIR='
+        state: present
+    - name: Set JAVA_OPTS
+      lineinfile:
+        path: /etc/environment
+        line: 'JAVA_OPTS="-Djava.awt.headless=true"'
+        regex: '^JAVA_OPTS='
+        state: present
+    - name: Install Python3 Pip
+      apt:
+        name: python3-pip
+        state: present
+    - name: Install lxml Python Module
+      pip:
+        name: lxml
+        state: present
+    - name: Add Tomcat Roles and User
+      community.general.xml:
+        path: /etc/tomcat9/tomcat-users.xml
+        xpath: /tomcat:tomcat-users
+        pretty_print: yes
+        namespaces:
+          tomcat: "http://tomcat.apache.org/xml"
+        set_children:
+          - role:
+              rolename: admin-gui
+          - role:
+              rolename: manager-gui
+          - user:
+              username: sysop
+              password: 2ManageWebApps
+              roles: 'admin-gui,manager-gui'
