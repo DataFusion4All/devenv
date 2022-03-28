@@ -1,0 +1,30 @@
+---
+- name: Setup Tomcat Users
+  hosts: machines
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Python3 Pip
+      apt:
+        name: python3-pip
+        state: present
+    - name: Install lxml Python Module
+      pip:
+        name: lxml
+        state: present
+    - name: Add Tomcat Roles and User
+      community.general.xml:
+        path: /etc/tomcat9/tomcat-users.xml
+        xpath: /tomcat:tomcat-users
+        pretty_print: yes
+        namespaces:
+          tomcat: "http://tomcat.apache.org/xml"
+        set_children:
+          - role:
+              rolename: admin-gui
+          - role:
+              rolename: manager-gui
+          - user:
+              username: sysop
+              password: 2ManageWebApps
+              roles: 'admin-gui,manager-gui'

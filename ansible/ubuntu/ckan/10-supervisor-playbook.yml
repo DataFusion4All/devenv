@@ -1,0 +1,14 @@
+---
+- name: Setup Supervisor
+  hosts: machines
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Supervisor
+      apt:
+        name: supervisor
+        state: present
+    - name: Start Supervisor Service
+      service:
+        name: supervisor
+        state: restarted

@@ -1,0 +1,42 @@
+---
+- name: Ubuntu Server General Setup
+  hosts: machines
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Run A Distro Upgrade
+      apt:
+        upgrade: dist
+        update_cache: yes
+    - name: Install Git
+      apt:
+        name: git-core
+        state: present
+    - name: Clone Dotfiles for Root
+      git:
+      become: yes
+      become_user: root
+      args:
+        repo: 'https://github.com/Waiver-Wire-Addict/dotfiles.git'
+        dest: /root/dotfiles
+    - name: Install Root Dotfiles
+      command:
+      become: yes
+      become_user: root
+      args:
+        cmd: ./install.sh
+        chdir: /root/dotfiles
+    - name: Clone Dotfiles for Sysop
+      git:
+      become: yes
+      become_user: sysop
+      args:
+        repo: 'https://github.com/Waiver-Wire-Addict/dotfiles.git'
+        dest: /home/sysop/dotfiles
+    - name: Install Sysop Dotfiles
+      command:
+      become: yes
+      become_user: sysop
+      args:
+        cmd: ./install.sh
+        chdir: /home/sysop/dotfiles

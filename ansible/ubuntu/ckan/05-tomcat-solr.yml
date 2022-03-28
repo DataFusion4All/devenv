@@ -1,0 +1,10 @@
+---
+- name: Setup Tomcat Solr Search Engine
+  hosts: machines
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install solr-tomcat
+      apt:
+        name: solr-tomcat
+        state: present

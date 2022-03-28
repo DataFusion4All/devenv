@@ -1,0 +1,16 @@
+---
+- name: Setup Java 11 OpenJDK
+  hosts: machines
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Java 11 OpenJDK
+      apt:
+        name: openjdk-11-jdk
+        state: present
+    - name: Set JAVA_HOME
+      lineinfile:
+        path: /etc/environment
+        line: 'JAVA_HOME="/usr/lib/jvm/java-1.11.0-openjdk-amd64"'
+        regex: '^JAVA_HOME='
+        state: present

@@ -1,1 +1,7 @@
-../../inventory.yml
+all:
+  hosts:
+  children:
+    machines:
+      hosts:
+        ckan-01:
+          ansible_host: 172.25.11.15

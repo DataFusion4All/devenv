@@ -1,6 +1,6 @@
 ---
 - name: Setup CKAN Server
-  hosts: ckan-01
+  hosts: all
   become: yes
   gather_facts: true
   tasks:
@@ -25,13 +25,13 @@
       apt:
         name: git-core
         state: present
-    - name: Install OpenJDK 8
+    - name: Install OpenJDK 11
       apt:
-        name: openjdk-8-jdk
+        name: openjdk-11-jdk
         state: present
-    - name: Install solr-jetty
+    - name: Install solr-tomcat
       apt:
-        name: solr-jetty
+        name: solr-tomcat
         state: present
     - name: Install redis-server
       apt:

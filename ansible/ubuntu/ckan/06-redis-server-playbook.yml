@@ -1,0 +1,10 @@
+---
+- name: Setup Redis Server
+  hosts: machines
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install redis-server
+      apt:
+        name: redis-server
+        state: present

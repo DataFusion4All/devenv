@@ -1,0 +1,10 @@
+---
+- name: Setup Nginx
+  hosts: machines
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
