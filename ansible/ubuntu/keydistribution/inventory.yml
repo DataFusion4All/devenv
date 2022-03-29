@@ -1,0 +1,15 @@
+all:
+  hosts:
+  children:
+    machines:
+      hosts:
+        ansible:
+          ansible_host: 127.0.0.1
+        gitlab:
+          ansible_host: 172.25.11.5
+        pent-ba:
+          ansible_host: 172.25.11.14
+        ckan-01:
+          ansible_host: 172.25.11.15
+        pgsql-01:
+          ansible_host: 172.25.11.13

@@ -1,1 +1,15 @@
-../inventory.yml
+all:
+  hosts:
+  children:
+    machines:
+      hosts:
+        team-001:
+          ansible_host: 172.25.11.12
+        team-002:
+          ansible_host: 172.25.11.9
+        team-003:
+          ansible_host: 172.25.11.7
+        team-004:
+          ansible_host: 172.25.11.10
+        team-005:
+          ansible_host: 172.25.11.11

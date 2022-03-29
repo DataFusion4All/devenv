@@ -1,0 +1,20 @@
+---
+- hosts:
+    team-005
+  vars:
+    ansible_user: sysop
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Create team-05 .ssh folder
+      ansible.windows.win_file:
+        path: C:\Users\team-05\.ssh
+        state: directory
+    - name: Copy Stephen Church Private SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-05/.ssh/team-05
+        dest: C:\Users\team-05\.ssh\id_rsa
+    - name: Copy Stephen Church Public SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-05/.ssh/id_rsa.pub
+        dest: C:\Users\team-05\.ssh\id_rsa.pub

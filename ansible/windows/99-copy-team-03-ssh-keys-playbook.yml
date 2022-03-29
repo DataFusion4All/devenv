@@ -1,0 +1,16 @@
+---
+- hosts:
+    team-003
+  vars:
+    ansible_user: sysop
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Copy David Peel Private SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-03/.ssh/team-03
+        dest: C:\Users\team-03\.ssh\id_rsa
+    - name: Copy David Peel Public SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-03/.ssh/id_rsa.pub
+        dest: C:\Users\team-03\.ssh\id_rsa.pub

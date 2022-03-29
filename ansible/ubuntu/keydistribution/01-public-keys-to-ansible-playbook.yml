@@ -1,0 +1,18 @@
+---
+- name: Distribute Public Keys to Ansible server
+  hosts: ansible
+  vars:
+    ansible_connection: local
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Add team-01 Public Key to Sysop User Authorized Keys
+      ansible.posix.authorized_key:
+        user: sysop
+        state: present
+        key: "{{ lookup('file', '/home/sysop/devenv/sshkeys/gitlab/home/team-01/.ssh/id_rsa.pub') }}"
+    - name: Add team-02 Public Key to CKAN User Authorized Keys
+      ansible.posix.authorized_key:
+        user: sysop
+        state: present
+        key: "{{ lookup('file', '/home/sysop/devenv/sshkeys/gitlab/home/team-02/.ssh/id_rsa.pub') }}"

@@ -1,0 +1,86 @@
+---
+- name: Convert SSH Keys to RSA PRIVATE KEY format
+  hosts: machines
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: Convert Mengh Wu OpenSSH format Key to SSH2 format
+      command:
+      become: yes
+      become_user: team-01
+      args:
+        cmd: /usr/bin/puttygen id_rsa -O private-sshcom -o team-01-ssh2
+        chdir: /home/team-01/.ssh
+        creates: team-01-ssh2
+    - name: Convert Menghe Wu SSH2 format Key to RSA PRIVATE format
+      shell:
+      become: yes
+      become_user: team-01
+      args:
+        cmd: /usr/bin/ssh-keygen -i -f team-01-ssh2 > team-01
+        chdir: /home/team-01/.ssh
+        creates: team-01
+    - name: Convert Stephen Butler OpenSSH format Key to SSH2 format
+      command:
+      become: yes
+      become_user: team-02
+      args:
+        cmd: /usr/bin/puttygen id_rsa -O private-sshcom -o team-02-ssh2
+        chdir: /home/team-02/.ssh
+        creates: team-02-ssh
+    - name: Convert Stephen Butler SSH2 format Key tp RSA PRIVATE format
+      shell:
+      become: yes
+      become_user: team-02
+      args:
+        cmd: /usr/bin/ssh-keygen -i -f team-02-ssh2 > team-02
+        chdir: /home/team-02/.ssh
+        creates: team-02
+    - name: Convert David Peel OpenSSH format Key to SSH2 format
+      command:
+      become: yes
+      become_user: team-03
+      args:
+        cmd: /usr/bin/puttygen id_rsa -O private-sshcom -o team-03-ssh2
+        chdir: /home/team-03/.ssh
+        creates: team-03-ssh2
+    - name: Convert David Peel SSH2 format Key to RSA PRIVATE format
+      shell:
+      become: yes
+      become_user: team-03
+      args:
+        cmd: /usr/bin/ssh-keygen -i -f team-03-ssh2 > team-03
+        chdir: /home/team-03/.ssh
+        creates: team-03
+    - name: Convert Luc Sabourin OpenSSH format Key to SSH2 format
+      command:
+      become: yes
+      become_user: team-04
+      args:
+        cmd: /usr/bin/puttygen id_rsa -O private-sshcom -o team-04-ssh2
+        chdir: /home/team-04/.ssh
+        creates: team-04-ssh2
+    - name: Convert Luc Sabourin SSH2 format Key to RSA PRIVATE format
+      shell:
+      become: yes
+      become_user: team-04
+      args:
+        cmd: /usr/bin/ssh-keygen -i -f team-04-ssh2 > team-04
+        chdir: /home/team-04/.ssh
+        creates: team-04
+    - name: Convert Stephen Church OpenSSH format Key to SSH2 format
+      command:
+      become: yes
+      become_user: team-05
+      args:
+        cmd: /usr/bin/puttygen id_rsa -O private-sshcom -o team-05-ssh2
+        chdir: /home/team-05/.ssh
+        creates: team-05-ssh2
+    - name: Convert Stephen Church SSH2 format Key to RSA PRIVATE format
+      shell:
+      become: yes
+      become_user: team-05
+      args:
+        cmd: /usr/bin/ssh-keygen -i -f team-05-ssh2 > team-05
+        chdir: /home/team-05/.ssh
+        creates: team-05

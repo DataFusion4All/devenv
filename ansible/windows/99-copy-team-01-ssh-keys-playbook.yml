@@ -1,0 +1,16 @@
+---
+- hosts:
+    team-001
+  vars:
+    ansible_user: sysop
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Copy Menghe Wu Private SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-01/.ssh/team-01
+        dest: C:\Users\team-01\.ssh\id_rsa
+    - name: Copy Menghe Wu Public SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-01/.ssh/id_rsa.pub
+        dest: C:\Users\team-01\.ssh\id_rsa.pub

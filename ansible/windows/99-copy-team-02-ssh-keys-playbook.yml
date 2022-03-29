@@ -1,0 +1,16 @@
+---
+- hosts:
+    team-002
+  vars:
+    ansible_user: sysop
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: Copy Stephen Butler Private SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-02/.ssh/team-02
+        dest: C:\Users\team-02\.ssh\id_rsa
+    - name: Copy Stephen Butler Public SSH Key
+      ansible.windows.win_copy:
+        src: ~/devenv/sshkeys/gitlab/home/team-02/.ssh/id_rsa.pub
+        dest: C:\Users\team-02\.ssh\id_rsa.pub

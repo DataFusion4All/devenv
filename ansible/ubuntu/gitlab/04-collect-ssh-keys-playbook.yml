@@ -1,0 +1,46 @@
+---
+- name: Collect RSA format private keys ans public keys
+  hosts: machines
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: Collect Menghe Wu Private Key
+      fetch:
+        src: /home/team-01/.ssh/team-01
+        dest: ~/devenv/sshkeys
+    - name: Collect Menghe Wu Public Key
+      fetch:
+        src: /home/team-01/.ssh/id_rsa.pub
+        dest: ~/devenv/sshkeys
+    - name: Collect Stephen Butler Private Key
+      fetch:
+        src: /home/team-02/.ssh/team-02
+        dest: ~/devenv/sshkeys
+    - name: Collect Stephen Butler Public Key
+      fetch:
+        src: /home/team-02/.ssh/id_rsa.pub
+        dest: ~/devenv/sshkeys
+    - name: Collect David Peel Private Key
+      fetch:
+        src: /home/team-03/.ssh/team-03
+        dest: ~/devenv/sshkeys
+    - name: Collect David Peel Public Key
+      fetch:
+        src: /home/team-03/.ssh/id_rsa.pub
+        dest: ~/devenv/sshkeys
+    - name: Collect Luc Sabourin Private Key
+      fetch:
+        src: /home/team-04/.ssh/team-04
+        dest: ~/devenv/sshkeys
+    - name: Collect Luc Sabourin Public Key
+      fetch:
+        src: /home/team-04/.ssh/id_rsa.pub
+        dest: ~/devenv/sshkeys
+    - name: Collect Stephen Church Private Key
+      fetch:
+        src: /home/team-05/.ssh/team-05
+        dest: ~/devenv/sshkeys
+    - name: Collect Stephen Church Public Key
+      fetch:
+        src: /home/team-05/.ssh/id_rsa.pub
+        dest: ~/devenv/sshkeys

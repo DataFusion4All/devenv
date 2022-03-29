@@ -1,0 +1,61 @@
+---
+- name: Setup GitLab Local Users
+  hosts: machines
+  become: yes
+  gather_facts: false
+  tasks:
+     - name: Setup Menghe Wu
+       user:
+         name: team-01
+         comment: Menghe Wu,,,,team-01
+         state: present
+         create_home: yes
+         home: /home/team-01
+         shell: /usr/bin/bash
+         skeleton: /etc/skel
+         system: no
+         generate_ssh_key: yes
+     - name: Setup Stephen Butler
+       user:
+         name: team-02
+         comment: Stephen Butler,,,613-262-2841,team-02
+         state: present
+         create_home: yes
+         home: /home/team-02
+         shell: /usr/bin/bash
+         skeleton: /etc/skel
+         system: no
+         generate_ssh_key: yes
+     - name: Setup David Peel
+       user:
+         name: team-03
+         comment: David Peel,,,,team-03
+         state: present
+         create_home: yes
+         home: /home/team-03
+         shell: /usr/bin/bash
+         skeleton: /etc/skel
+         system: no
+         generate_ssh_key: yes
+     - name: Setup Luc Sabourin
+       user:
+         name: team-04
+         comment: Luc Sabourin,,,,team-04
+         state: present
+         create_home: yes
+         home: /home/team-04
+         shell: /usr/bin/bash
+         skeleton: /etc/skel
+         system: no
+         generate_ssh_key: yes
+     - name: Setup Stephen Church
+       user:
+         name: team-05
+         comment: Stephen Church,,,,team-05
+         state: present
+         create_home: yes
+         home: /home/team-05
+         shell: /usr/bin/bash
+         skeleton: /etc/skel
+         system: no
+         generate_ssh_key: yes
